@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trichy Weather Dashboard</title>
+<style>
+    body { font-family: Arial; text-align:center; margin:50px; }
+    h1,h3 { margin:5px; }
+    #weather { font-size: 1.2em; margin-top: 20px; }
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<h1>Trichy Weather Dashboard</h1>
+<h3>Created by Alwashim A. | St. Joseph's College (Autonomous), Trichy</h3>
+
+<div id="weather">Loading weather data...</div>
+
+<script>
+async function fetchWeather() {
+    try {
+        const response = await fetch("latest_weather.json");
+        const weather = await response.json();
+
+        document.getElementById("weather").innerHTML = `
+            <p>Temperature: ${weather.temperature}°C</p>
+            <p>Humidity: ${weather.humidity}%</p>
+            <p>Description: ${weather.description}</p>
+            <p>Timestamp: ${weather.timestamp}</p>
+        `;
+    } catch (err) {
+        document.getElementById("weather").innerText = "Error fetching data";
+        console.error(err);
+    }
+}
+
+fetchWeather();
+setInterval(fetchWeather, 30000);
+</script>
+
+
+</body>
+</html>
