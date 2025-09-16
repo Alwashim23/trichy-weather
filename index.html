@@ -78,29 +78,28 @@
 </div>
 
 <script>
-    // ------------------- Firebase config -------------------
     const firebaseConfig = {
         databaseURL: "https://trichy-weather-default-rtdb.asia-southeast1.firebasedatabase.app/"
     };
     const app = firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // ------------------- Reference to weather -------------------
     const ref = database.ref('/weather');
 
     // Fetch the latest entry
     ref.orderByKey().limitToLast(1).on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            const keys = Object.keys(data);
-            const lastKey = keys[keys.length - 1];
-            const weather = data[lastKey];
+        let weatherData = null;
 
+        snapshot.forEach(childSnapshot => {
+            weatherData = childSnapshot.val(); // get the child data
+        });
+
+        if (weatherData) {
             document.getElementById('weather').innerHTML = `
-                <p><b>Temperature:</b> ${weather.temperature}°C</p>
-                <p><b>Humidity:</b> ${weather.humidity}%</p>
-                ${weather.description ? `<p><b>Description:</b> ${weather.description}</p>` : ''}
-                ${weather.timestamp ? `<p><b>Timestamp:</b> ${weather.timestamp}</p>` : ''}
+                <p><b>Temperature:</b> ${weatherData.temperature}°C</p>
+                <p><b>Humidity:</b> ${weatherData.humidity}%</p>
+                ${weatherData.description ? `<p><b>Description:</b> ${weatherData.description}</p>` : ''}
+                ${weatherData.timestamp ? `<p><b>Timestamp:</b> ${weatherData.timestamp}</p>` : ''}
             `;
         } else {
             document.getElementById('weather').innerHTML = "No data available";
@@ -108,5 +107,7 @@
     });
 </script>
 
+
 </body>
 </html>
+
