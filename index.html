@@ -36,8 +36,6 @@
     .card b { color: #1e90ff; }
     @media (max-width: 600px) { .dashboard { flex-direction: column; align-items: center; } }
 </style>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -53,40 +51,39 @@
 </div>
 
 <script>
-    // ------------------- Firebase config -------------------
-    const firebaseConfig = {
-        databaseURL: "https://trichy-weather-default-rtdb.asia-southeast1.firebasedatabase.app"
-    };
-    const app = firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const ref = database.ref('/weather');
+    const FIREBASE_URL = "https://trichy-weather-default-rtdb.asia-southeast1.firebasedatabase.app/weather.json";
 
-    // ------------------- Function to fetch latest weather -------------------
-    function fetchLatestWeather() {
-        ref.orderByKey().limitToLast(1).once('value', (snapshot) => {
-            let weatherData = null;
+    async function fetchLatestWeather() {
+        try {
+            const response = await fetch(FIREBASE_URL);
+            const data = await response.json();
 
-            snapshot.forEach(childSnapshot => {
-                weatherData = childSnapshot.val(); // get the latest child
-            });
-
-            if (weatherData) {
-                document.getElementById('weather').innerHTML = `
-                    <p><b>Temperature:</b> ${weatherData.temperature}°C</p>
-                    <p><b>Humidity:</b> ${weatherData.humidity}%</p>
-                    ${weatherData.description ? `<p><b>Description:</b> ${weatherData.description}</p>` : ''}
-                    ${weatherData.timestamp ? `<p><b>Timestamp:</b> ${weatherData.timestamp}</p>` : ''}
-                `;
-            } else {
+            if (!data) {
                 document.getElementById('weather').innerHTML = "No data available";
+                return;
             }
-        });
+
+            // Get the last pushed entry
+            const keys = Object.keys(data);
+            const lastKey = keys[keys.length - 1];
+            const weather = data[lastKey];
+
+            document.getElementById('weather').innerHTML = `
+                <p><b>Temperature:</b> ${weather.temperature}°C</p>
+                <p><b>Humidity:</b> ${weather.humidity}%</p>
+                ${weather.description ? `<p><b>Description:</b> ${weather.description}</p>` : ''}
+                ${weather.timestamp ? `<p><b>Timestamp:</b> ${weather.timestamp}</p>` : ''}
+            `;
+        } catch (error) {
+            console.error(error);
+            document.getElementById('weather').innerHTML = "Error fetching data";
+        }
     }
 
-    // ------------------- Initial fetch -------------------
+    // Initial fetch
     fetchLatestWeather();
 
-    // ------------------- Auto-refresh every 30 seconds -------------------
+    // Auto-refresh every 30 seconds
     setInterval(fetchLatestWeather, 30000);
 </script>
 
