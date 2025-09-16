@@ -92,8 +92,10 @@
     ref.orderByKey().limitToLast(1).on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            const key = Object.keys(data)[0]; // get latest auto-key
-            const weather = data[key];
+            const keys = Object.keys(data);
+            const lastKey = keys[keys.length - 1];
+            const weather = data[lastKey];
+
             document.getElementById('weather').innerHTML = `
                 <p><b>Temperature:</b> ${weather.temperature}°C</p>
                 <p><b>Humidity:</b> ${weather.humidity}%</p>
